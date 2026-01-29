@@ -1,0 +1,24 @@
+{
+  "name": "todo-api-with-json-file",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/premvishwakarma95/todo-api-with-json-file.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/premvishwakarma95/todo-api-with-json-file/issues"
+  },
+  "homepage": "https://github.com/premvishwakarma95/todo-api-with-json-file#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

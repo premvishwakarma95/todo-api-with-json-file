@@ -1,4 +1,18 @@
 # todo-api-with-json-file
+Store data in this format in json file
+```bash
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "Laptop",
+      "price": 55000,
+      "inStock": true
+    }
+  ]
+}
+
+```
 
 ```js
 const fs = require('fs');

@@ -1,98 +1,76 @@
-// index.js
-const express = require("express");
-const fs = require("fs");
+const express = require('express');
+const fs = require('fs');
 
 const app = express();
+
 app.use(express.json());
 
-const FILE = "todos.json";
-
-// helper: read todos
-function readTodos() {
-    if (!fs.existsSync(FILE)) {
-        fs.writeFileSync(FILE, "[]");
+const readFile = () => {
+    try {
+        const fileData = fs.readFileSync('data.json');
+        return JSON.parse(fileData);
+    } catch (error) {
+        console.log(error);
+        return false;
     }
-
-    const data = fs.readFileSync(FILE, "utf-8");
-    return data ? JSON.parse(data) : [];
 }
 
+app.get('/get-data', async (req, res) => {
+    try {
+        const data = readFile();
+        if (data) {
+            return res.status(200).json({ data });
+        } else {
+            return res.status(400).json({ message: "currently no data in db", data: [] })
+        }
 
-// helper: write todos
-function writeTodos(data) {
-    fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
-}
-
-/* ================== APIs ================== */
-
-// GET all todos
-app.get("/todos", (req, res) => {
-    const todos = readTodos();
-    res.json(todos);
-});
-
-// GET todo by id
-app.get("/todos/:id", (req, res) => {
-    const todos = readTodos();
-    const todo = todos.find(t => t.id == req.params.id);
-
-    if (!todo) return res.status(404).json({ message: "Todo not found" });
-    res.json(todo);
-});
-
-// CREATE todo
-app.post("/todos", (req, res) => {
-    const todos = readTodos();
-    const { title } = req.body;
-
-    if (!title) {
-        return res.status(400).json({ message: "Title required" });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send('got error');
     }
+})
 
-    const newTodo = {
-        id: Date.now(),
-        title,
-        completed: false
-    };
+app.post('/post-data', async (req, res) => {
+    try {
+        let data = readFile();
+        if (data) {
+            let arr = data.users;
+            arr.push(req.body);
+            let jsonData = JSON.stringify({ users: arr });
+            const response = fs.writeFileSync('data.json', jsonData);
+            return res.status(200).json({ data: JSON.parse(jsonData) });
+        } else {
+            let firstData = JSON.stringify({ users: [req.body] })
+            const response = fs.writeFileSync('data.json', firstData);
+            return res.status(400).json({ message: "currently no data in db", data: [] })
+        }
+    } catch (error) {
 
-    todos.push(newTodo);
-    writeTodos(todos);
-
-    res.status(201).json(newTodo);
-});
-
-// UPDATE todo
-app.put("/todos/:id", (req, res) => {
-    const todos = readTodos();
-    const index = todos.findIndex(t => t.id == req.params.id);
-
-    if (index === -1) {
-        return res.status(404).json({ message: "Todo not found" });
     }
+})
 
-    const { title, completed } = req.body;
-    if (title !== undefined) todos[index].title = title;
-    if (completed !== undefined) todos[index].completed = completed;
+app.put('/update', async (req, res) => {
+    try {
+        let data = readFile();
+        if (data) {
+            let arr = data.users;
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i].email == req.body.email) {
+                    arr[i].name = req.body.name;
+                }
+            }
 
-    writeTodos(todos);
-    res.json(todos[index]);
-});
+            let jsonData = JSON.stringify({ users: arr });
+            const response = fs.writeFileSync('data.json', jsonData);
+            return res.status(200).json({ data: JSON.parse(jsonData) });
+        } else {
+            return res.status(400).json({ message: "currently no data in db", data: [] })
+        }
+    } catch (error) {
 
-// DELETE todo
-app.delete("/todos/:id", (req, res) => {
-    const todos = readTodos();
-    const newTodos = todos.filter(t => t.id != req.params.id);
-
-    if (todos.length === newTodos.length) {
-        return res.status(404).json({ message: "Todo not found" });
     }
+})
 
-    writeTodos(newTodos);
-    res.json({ message: "Todo deleted" });
-});
-
-/* ========================================== */
-
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
-});
+app.listen(5000, () => {
+    console.log('app is running on 5000')
+})
